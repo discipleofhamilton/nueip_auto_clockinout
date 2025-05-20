@@ -18,6 +18,7 @@ const ACTION_TEXT = ACTION === 'clockin' ? '上班' : '下班';
 
   const page = await context.newPage();
   await page.goto('https://portal.nueip.com/home', { waitUntil: 'networkidle' });
+  // await page.goto('https://portal.nueip.com/line/bot/punch_clock/clock_in', { waitUntil: 'networkidle' });
 
   try {
     const companyInput = await page.$('input[name="inputCompany"]');
@@ -26,7 +27,7 @@ const ACTION_TEXT = ACTION === 'clockin' ? '上班' : '下班';
       await page.fill('input[name="inputID"]', config.account);
       await page.fill('input[name="inputPassword"]', config.password);
       await page.getByRole('button', { name: '登入', exact: true }).click();
-      await page.waitForNavigation({ waitUntil: 'networkidle' });
+      // await page.waitForNavigation({ waitUntil: 'networkidle' });
       console.log("✅ 登入成功");
     } else {
       console.log("🔐 已經登入");
@@ -44,9 +45,14 @@ const ACTION_TEXT = ACTION === 'clockin' ? '上班' : '下班';
       process.exit(1);
     }
 
+    await page.waitForTimeout(3000);
+
     const clockBtn = page.locator(`button.el-button:has-text(\"${ACTION_TEXT}\")`).first();
-    if (await clockBtn.isVisible()) {
+    // const count = await clockBtn.count()
+    // console.log(`有${count}個下班`)
+    if (clockBtn && await clockBtn.isVisible()) {
       await clockBtn.click();
+      await page.waitForTimeout(1000);
       console.log(`✅ ${ACTION_TEXT}打卡成功！`);
     } else {
       console.log(`⚠️ 無法打卡（${ACTION_TEXT}按鈕不可見）`);
