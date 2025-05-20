@@ -32,7 +32,7 @@ const ACTION_TEXT = ACTION === 'clockin' ? '上班' : '下班';
       console.log("🔐 已經登入");
     }
 
-    // 等待打卡按鈕出現
+    // wait for the clock button show up
     try {
       await page.waitForSelector(`button.el-button:has-text(\"${ACTION_TEXT}\")`, {
         timeout: 5000,
@@ -46,7 +46,7 @@ const ACTION_TEXT = ACTION === 'clockin' ? '上班' : '下班';
 
     const clockBtn = page.locator(`button.el-button:has-text(\"${ACTION_TEXT}\")`).first();
     if (await clockBtn.isVisible()) {
-      // await clockBtn.click();
+      await clockBtn.click();
       console.log(`✅ ${ACTION_TEXT}打卡成功！`);
     } else {
       console.log(`⚠️ 無法打卡（${ACTION_TEXT}按鈕不可見）`);
