@@ -1,0 +1,27 @@
+# Node.js 相關
+node_modules/
+package-lock.json
+
+# IDE 設定檔
+.vscode/
+.idea/
+
+# 作業系統暫存檔
+.DS_Store
+Thumbs.db
+
+# 使用者憑證、帳密、私密設定檔
+config.js
+.env
+
+# 調試與執行暫存檔
+*.log
+*.tmp
+*.bak
+
+# Playwright 瀏覽器快取
+playwright/.cache/
+
+# Debug 截圖或錄影
+*.png
+*.webm
