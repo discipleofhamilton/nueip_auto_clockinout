@@ -28,6 +28,7 @@ cd nueip_auto_clock
 ```bash
 npm install
 npx playwright install
+npm install express
 ```
 
 > Playwright 安裝完成後，會自動下載 Chromium 瀏覽器供模擬使用。
