@@ -19,8 +19,8 @@
 1. **下載專案**
 
 ```bash
-git clone https://your-repo-url.git
-cd nueip_auto_clock
+git clone https://github.com/discipleofhamilton/nueip_auto_clockinout.git
+cd nueip_auto_clockinout
 ```
 
 2. **安裝依賴套件**
