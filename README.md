@@ -41,14 +41,12 @@ npm install express
 
 ```js
 module.exports = {
-  headless: true, // true 表示無頭模式，若需除錯請設為 false
-  company: 'your_company_name',      // 公司代碼，例如：openai
-  account: 'your_login_account',     // 使用者帳號
-  password: 'your_login_password',   // 密碼
+  secretToken: 'YOUR_SECRET_TOKEN',
   gps: {
-    lat: 25.033964,                  // 打卡的模擬 GPS 緯度（例如台北 101）
-    lon: 121.564468                  // 打卡的模擬 GPS 經度
-  }
+    latitude: 25.033964,   // 打卡的模擬 GPS 緯度（例如台北 101）
+    longitude: 121.564468  // 打卡的模擬 GPS 經度
+  },
+  headless: false // true 表示無頭模式，若需除錯請設為 false
 };
 ```
 

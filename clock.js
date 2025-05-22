@@ -1,55 +1,37 @@
 // clock.js
 const { chromium } = require('playwright');
-const config = require('./config');
 
-const ACTION = process.argv[2]; // 'clockin' or 'clockout'
-const ACTION_TEXT = ACTION === 'clockin' ? '上班' : '下班';
+async function runClock({ action, company, account, password, gps, headless }) {
+  const ACTION_TEXT = action === 'clockin' ? '上班' : '下班';
 
-(async () => {
-  const browser = await chromium.launch({ headless: config.headless });
+  const browser = await chromium.launch({ headless });
   const context = await browser.newContext({
-    geolocation: {
-      latitude: config.gps.lat,
-      longitude: config.gps.lon,
-    },
+    geolocation: gps,
     permissions: ['geolocation'],
     locale: 'zh-TW',
   });
 
   const page = await context.newPage();
   await page.goto('https://portal.nueip.com/home', { waitUntil: 'networkidle' });
-  // await page.goto('https://portal.nueip.com/line/bot/punch_clock/clock_in', { waitUntil: 'networkidle' });
 
   try {
     const companyInput = await page.$('input[name="inputCompany"]');
     if (companyInput) {
-      await page.fill('input[name="inputCompany"]', config.company);
-      await page.fill('input[name="inputID"]', config.account);
-      await page.fill('input[name="inputPassword"]', config.password);
+      await page.fill('input[name="inputCompany"]', company);
+      await page.fill('input[name="inputID"]', account);
+      await page.fill('input[name="inputPassword"]', password);
       await page.getByRole('button', { name: '登入', exact: true }).click();
-      // await page.waitForNavigation({ waitUntil: 'networkidle' });
       console.log("✅ 登入成功");
     } else {
       console.log("🔐 已經登入");
     }
 
-    // wait for the clock button show up
-    try {
-      await page.waitForSelector(`button.el-button:has-text(\"${ACTION_TEXT}\")`, {
-        timeout: 5000,
-      });
-      console.log(`🔍 找到「${ACTION_TEXT}」按鈕`);
-    } catch (e) {
-      console.error(`❌ 找不到「${ACTION_TEXT}」按鈕`, e);
-      await page.screenshot({ path: `debug_no_button_${ACTION}.png` });
-      process.exit(1);
-    }
+    await page.waitForSelector(`button.el-button:has-text("${ACTION_TEXT}")`, { timeout: 5000 });
+    console.log(`🔍 找到「${ACTION_TEXT}」按鈕`);
 
     await page.waitForTimeout(3000);
+    const clockBtn = page.locator(`button.el-button:has-text("${ACTION_TEXT}")`).first();
 
-    const clockBtn = page.locator(`button.el-button:has-text(\"${ACTION_TEXT}\")`).first();
-    // const count = await clockBtn.count()
-    // console.log(`有${count}個下班`)
     if (clockBtn && await clockBtn.isVisible()) {
       await clockBtn.click();
       await page.waitForTimeout(1000);
@@ -62,4 +44,6 @@ const ACTION_TEXT = ACTION === 'clockin' ? '上班' : '下班';
   }
 
   await browser.close();
-})();
+}
+
+module.exports = runClock;

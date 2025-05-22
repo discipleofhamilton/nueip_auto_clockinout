@@ -1,25 +1,52 @@
 // webhook.js
 const express = require('express');
-const { exec } = require('child_process');
+const runClock = require('./clock');
+const config = require('./config');
+const { decrypt } = require('./aes');
+
 const app = express();
 app.use(express.json());
 
-app.post('/clock', (req, res) => {
-  const { action } = req.body;
-  if (action !== 'clockin' && action !== 'clockout') {
-    return res.status(400).send('Invalid action');
+app.post('/clock', async (req, res) => {
+  const { action, token, payload } = req.body;
+
+  if (token !== config.secretToken) {
+    return res.status(403).send('❌ 無效的 token');
   }
 
-  exec(`node clock.js ${action}`, (err, stdout, stderr) => {
-    if (err) {
-      console.error(`❌ 執行錯誤: ${stderr}`);
-      return res.status(500).send('Error executing script');
-    }
-    console.log(stdout);
-    res.send(`✅ 執行完成：${action}`);
-  });
+  if (!['clockin', 'clockout'].includes(action)) {
+    return res.status(400).send('❌ 無效的打卡指令');
+  }
+
+  if (!payload) {
+    return res.status(400).send('❌ 缺少加密 payload');
+  }
+
+  let user;
+  try {
+    user = decrypt(payload); // 解密 payload 取得帳密資料
+  } catch (err) {
+    return res.status(400).send('❌ 加密資料錯誤');
+  }
+
+  try {
+    await runClock({
+      action,
+      company: user.company,
+      account: user.account,
+      password: user.password,
+      gps: config.gps,
+      headless: config.headless,
+    });
+    console.log(`${action} ${user.account}`);
+    res.send(`✅ ${action} 完成`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('❌ 執行錯誤');
+  }
 });
 
 app.listen(3000, () => {
-  console.log('🚀 Webhook server on http://localhost:3000/clock');
+  console.log('🚀 Webhook server listening on http://localhost:3000/clock');
 });
+
